@@ -1,4 +1,4 @@
-import subscribers.FileLogger;
+import subscribers.PopupNotifier;
 import tracker.api.IJournal;
 import tracker.api.ITask;
 import tracker.api.Period;
@@ -17,7 +17,7 @@ public class Main {
             Period p = new Period(LocalDateTime.now().plusSeconds(5 * i), LocalDateTime.now().plusSeconds(5 * i + 4));
             addTask(journal, String.format("title%d", i), String.format("desc%d", i), p);
         }
-        journal.register(new FileLogger());
+        journal.register(new PopupNotifier());
     }
 
     private static void addTask(IJournal journal, String name, String description, Period period) throws PeriodOverlapException {
