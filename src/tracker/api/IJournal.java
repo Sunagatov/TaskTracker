@@ -14,6 +14,13 @@ public interface IJournal {
     int getId();
 
     /**
+     * Возвращает количество задач.
+     *
+     * @return Количество задач.
+     */
+    int getNumberOfTasks();
+
+    /**
      * Возвращает коллекцию задач из указанного периода.
      *
      * @param period Период для поиска задач.

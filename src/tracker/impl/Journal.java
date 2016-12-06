@@ -56,8 +56,23 @@ class Journal implements IJournal {
     }
 
     @Override
+    public int getNumberOfTasks() {
+        return data.size();
+    }
+
+    @Override
     public synchronized Collection<ITask> getTasks(Period period) {
-        throw new UnsupportedOperationException();
+        LocalDateTime start = period.getStart();
+        LocalDateTime end = period.getEnd();
+        return data.entrySet().stream().
+                filter((entry) -> {
+                    LocalDateTime taskStart = entry.getValue().getStart();
+                    LocalDateTime taskEnd = entry.getValue().getEnd();
+                    return start.isBefore(taskStart) && taskStart.isBefore(end) ||
+                            start.isBefore(taskEnd) && taskEnd.isBefore(end);
+                }).
+                map((entry) -> entry.getKey()).
+                collect(Collectors.toList());
     }
 
     @Override
