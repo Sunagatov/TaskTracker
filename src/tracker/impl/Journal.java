@@ -3,6 +3,7 @@ package tracker.impl;
 import tracker.api.*;
 import tracker.api.Period;
 
+import java.io.Serializable;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -125,7 +126,7 @@ class Journal implements IJournal {
                     LocalDateTime end = period.getEnd();
                     return start.isBefore(newStart) && newStart.isBefore(end) ||
                             start.isBefore(newEnd) && newEnd.isBefore(end) ||
-                            newStart.isBefore(start) && end.isBefore(newEnd);
+                            newStart.isBefore(start) && end.isBefore(newEnd) || start.isEqual(newStart)||end.isEqual(newEnd);
                 }).
                 map((entry) -> entry.getKey()).
                 collect(Collectors.toList());

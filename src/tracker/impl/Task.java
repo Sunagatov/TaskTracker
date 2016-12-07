@@ -2,6 +2,8 @@ package tracker.impl;
 
 import tracker.api.ITask;
 
+import java.io.Serializable;
+
 /**
  * Реализация интерфейса {@link ITask}.
  */

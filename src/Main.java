@@ -1,23 +1,47 @@
 import subscribers.PopupNotifier;
-import tracker.api.IJournal;
-import tracker.api.ITask;
-import tracker.api.Period;
-import tracker.api.PeriodOverlapException;
+import tracker.api.*;
 import tracker.impl.Manager;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class Main {
-    //06.12.2016 13:40:20
+    //20.12.2016 13:40:20
     public static void main(String[] args) {
+        System.out.println("Welcome to the TaskTracker by Zufar! ");
+        Scanner sc = new Scanner(System.in);
         IJournal journal = null;
-        try {
-            journal = Manager.getInstance().loadJournal(null);
-        } catch (IOException e) {
-            e.getMessage();
+        StringBuilder message1 = new StringBuilder("\nWhat do you want with journal? \n");
+        message1.append("  - create \n");
+        message1.append("  - load  \n");
+        String command;
+        while (true) {
+            System.out.print(message1);
+            command = sc.nextLine();
+            switch (command) {
+                case "create": {
+                    journal = Manager.getInstance().createJournal();
+                    System.out.println("\nJournal created successfully.");
+                    break;
+                }
+                case "load": {
+                    try {
+                        journal = Manager.getInstance().loadJournal("C:\\Users\\ьр\\IdeaProjects\\TaskTracker");
+                    } catch (IOException | ClassNotFoundException e) {
+                        System.out.println("\nError! Journal can not be loaded.");
+                        continue;
+                    }
+                    break;
+                }
+                default: {
+                    System.out.println("\nThe wrong command! Try again...");
+                    continue;
+                }
+            }
+            break;
         }
         journal.register(new PopupNotifier());
         StringBuilder message = new StringBuilder("\nWhat do you want with tasks? \n");
@@ -28,8 +52,7 @@ public class Main {
         message.append("Enter a command: ");
         while (true) {
             System.out.print(message);
-            Scanner sc = new Scanner(System.in);
-            String command = sc.nextLine();
+            command = sc.nextLine();
             switch (command) {
                 case "add": {
                     System.out.print("\nEnter task name: ");
@@ -49,23 +72,33 @@ public class Main {
                             LocalDateTime endTime = LocalDateTime.parse(sc.nextLine(), formatter);
                             if (endTime.isBefore(startTime)) {
                                 System.out.println("Error! EndTime must be after StarTime.");
-                                continue;}
-                            addTask(journal, name, description, new Period(startTime, endTime));
+                                continue;
+                            }
+                            ITask task = journal.createTask(new Period(startTime, endTime));
+                            task.setDescription(description);
+                            task.setName(name);
                             break;
                         } catch (Exception e) {
-                            System.out.println("Error! Please type the time in the right way...\n" + e.getMessage());
-                            continue;
+                            System.out.println("Error! Please type the time in the right way...\n");
                         }
                     }
 
                     break;
                 }
+
                 case "delete": {
                     System.out.print("Write a task name: ");
                     String taskName = sc.nextLine().toLowerCase();
+                    Stream<ITask> s = journal.getTasks(new Period(LocalDateTime.MIN, LocalDateTime.MAX)).stream().
+                            filter((task) -> task.getName().toLowerCase().contains(taskName));
+                    if (s.count() == 0 || journal.getNumberOfTasks() == 0) {
+                        System.out.println("Error! The task with that name is not existed!");
+                        continue;
+                    }
                     journal.getTasks(new Period(LocalDateTime.MIN, LocalDateTime.MAX)).stream().
                             filter((task) -> task.getName().toLowerCase().contains(taskName)).
                             forEach(journal::removeTask);
+                    System.out.println("\nThe Task was removed successfully.");
                     break;
                 }
 
@@ -88,11 +121,12 @@ public class Main {
                 }
 
                 case "exit": {
-                    try {
-                        Manager.getInstance().saveJournal(journal, "temp");
+                   /* try {
+                        Manager.getInstance().saveJournal(journal, "MyObject.txt");
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
+                    //System.out.println("\nJournal was saved successfully.");
                     return;
                 }
 
@@ -100,11 +134,5 @@ public class Main {
                     System.out.println("\nThe wrong command! Try again...");
             }
         }
-    }
-
-    private static void addTask(IJournal journal, String name, String description, Period period) throws PeriodOverlapException {
-        ITask task = journal.createTask(period);
-        task.setName(name);
-        task.setDescription(description);
     }
 }

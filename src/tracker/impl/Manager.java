@@ -4,6 +4,7 @@ import tracker.api.IJournal;
 import tracker.api.IManager;
 
 import java.io.*;
+import java.util.Random;
 
 /**
  * Реализация интерфейса {@link IManager}.
@@ -21,29 +22,38 @@ public class Manager implements IManager {
         return intance;
     }
 
-    private Manager() { }
-
-    @Override
-    public IJournal loadJournal(String name) {
-       /* FileInputStream fis = new FileInputStream(name+".out");
-        ObjectInputStream oin = new ObjectInputStream(fis);
-        try {
-            return  (IJournal) oin.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }*/
-        // Временное решение (в далёком прекрасном будущем id будет браться из БД).
-        return new Journal(0);
+    private Manager() {
     }
 
     @Override
-    public void saveJournal(IJournal journal, String name) throws IOException {
-        /*FileOutputStream fos = new FileOutputStream("temp.out");
-        try (ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(journal);
-            oos.flush();
-            oos.close();
-        }*/
-        throw new UnsupportedOperationException();
+    public IJournal loadJournal(String path) throws IOException, ClassNotFoundException {
+        ObjectInputStream oin;
+        try (FileInputStream fis = new FileInputStream(path)) {
+            oin = new ObjectInputStream(fis);
+            return (IJournal) oin.readObject();
+        }
+    }
+
+    @Override
+    public void saveJournal(IJournal journal, String path) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("MyObject.txt"))) {
+            out.writeObject(journal);
+            out.close();
+        }
+        //throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IJournal createJournal() {
+        Random r = new Random();
+        return new Journal(getRandomNumberInRange(0, Integer.MAX_VALUE-1));
+    }
+
+    private static int getRandomNumberInRange(int min, int max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 }

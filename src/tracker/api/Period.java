@@ -1,11 +1,12 @@
 package tracker.api;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * Описывает период времени.
  */
-public class Period {
+public class Period  {
     private final LocalDateTime start;
     private final LocalDateTime end;
 

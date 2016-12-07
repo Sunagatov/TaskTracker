@@ -4,6 +4,8 @@ import tracker.api.IJournal;
 import tracker.api.IJournalSubscriber;
 import tracker.api.ITask;
 
+import java.io.Serializable;
+
 public class PopupNotifier implements IJournalSubscriber {
     @Override
     public void onEvent(IJournal sender, ITask task) {
